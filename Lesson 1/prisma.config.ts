@@ -1,5 +1,7 @@
 import { defineConfig } from 'prisma/config'
 
 export default defineConfig({
-  datasourceUrl: 'file:./prisma/dev.db',
+  datasource: {
+    url: 'file:./prisma/dev.db',
+  },
 })
