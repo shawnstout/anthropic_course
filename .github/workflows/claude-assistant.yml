@@ -44,7 +44,9 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           additional_permissions: |
             actions: read
-          claude_args: "--append-system-prompt 'The project lives in the Lesson 1/ subdirectory. All commands and file paths should be relative to that directory. Dependencies are installed and the dev server is running at localhost:3000. Logs are in logs.txt. Query the db with sqlite3 cli if needed. Use mcp__playwright tools to interact with the browser.'"
+          claude_args: >-
+            --append-system-prompt 'The project lives in the Lesson 1/ subdirectory. All commands and file paths should be relative to that directory. Dependencies are installed and the dev server is running at localhost:3000. Logs are in logs.txt. Query the db with sqlite3 cli if needed. Use mcp__playwright tools to interact with the browser.'
+            --allowedTools 'Edit,MultiEdit,Glob,Grep,LS,Read,Write,Bash(git add:*),Bash(git commit:*),Bash(git push:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(git rm:*),mcp__github_comment__update_claude_comment,mcp__github_ci__get_ci_status,mcp__github_ci__get_workflow_run_details,mcp__github_ci__download_job_log,mcp__playwright__*'
           settings: |
             {
               "mcpServers": {
