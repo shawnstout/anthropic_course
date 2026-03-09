@@ -12,7 +12,7 @@ on:
 
 jobs:
   claude:
-    if: |
+    if: >-
       (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
@@ -22,30 +22,27 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
-      id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+      actions: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Project Setup
         working-directory: "Lesson 1"
         run: |
           npm run setup
-          npm run dev:daemon
+          npm run dev:daemon &
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          # This is an optional setting that allows Claude to read CI results on PRs
           additional_permissions: |
             actions: read
-          claude_args: |
-            --append-system-prompt "The project lives in the 'Lesson 1/' subdirectory of the repo. All commands and file paths should be relative to that directory. The project is already set up with all dependencies installed. The server is already running at localhost:3000. Logs from it are being written to logs.txt. If needed, you can query the db with the 'sqlite3' cli. If needed, use the mcp__playwright set of tools to launch a browser and interact with the app."
-
+          claude_args: "--append-system-prompt 'The project lives in the Lesson 1/ subdirectory. All commands and file paths should be relative to that directory. Dependencies are installed and the dev server is running at localhost:3000. Logs are in logs.txt. Query the db with sqlite3 cli if needed. Use mcp__playwright tools to interact with the browser.'"
           settings: |
             {
               "mcpServers": {
@@ -59,10 +56,3 @@ jobs:
                 }
               }
             }
-          # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
-
-          # Optional: Add claude_args to customize behavior and configuration
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr:*)'
